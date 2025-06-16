@@ -20,11 +20,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configure CORS
 app.use(cors({
-    origin: '*', // Allow all origins in development
+    origin: true, // Allow all origins
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+    maxAge: 86400 // 24 hours
 }));
+
+// Add OPTIONS handler for CORS preflight requests
+app.options('*', cors());
 
 app.use(express.static(path.join(__dirname)));
 
@@ -87,6 +91,7 @@ app.get('/', (req, res) => {
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     console.log('Received upload request');
+    console.log('Request headers:', req.headers);
     console.log('Request body:', req.body);
     console.log('Request file:', req.file);
 
@@ -127,7 +132,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     } catch (error) {
         console.error('Error details:', error);
         // Don't delete the file if there was an error
-        return res.status(500).json({ message: 'Error sending email: ' + error.message });
+        return res.status(500).json({ 
+            message: 'Error processing upload',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        });
     }
 });
 
