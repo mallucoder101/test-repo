@@ -18,10 +18,11 @@ console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configure CORS for production
+// Configure CORS
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*',
-    methods: ['GET', 'POST'],
+    origin: '*', // Allow all origins in development
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
 
@@ -139,7 +140,10 @@ app.use((err, req, res, next) => {
         }
         return res.status(400).json({ message: err.message });
     }
-    return res.status(500).json({ message: 'Something went wrong: ' + err.message });
+    return res.status(500).json({ 
+        message: 'Something went wrong',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
 });
 
 // Handle 404 errors
