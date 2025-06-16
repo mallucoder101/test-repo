@@ -28,6 +28,9 @@
     <script src="index.js"></script>
 
     <script>
+        // Replace this with your Render backend URL
+        const BACKEND_URL = 'https://your-render-app-url.onrender.com';
+
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -42,34 +45,20 @@
 
                 const formData = new FormData(form);
 
-                const response = await fetch('http://localhost:3000/upload', {
+                const response = await fetch(`${BACKEND_URL}/upload`, {
                     method: 'POST',
-                    body: formData
-                });
-
-                // First check if response is OK
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || 'Server error');
-                }
-
-                // Then try to parse as JSON
-                let result;
-                try {
-                    result = await response.json();
-                } catch (jsonError) {
-                    console.error('JSON parse error:', jsonError);
-                    throw new Error('Invalid server response format');
-                }
-
-                const API_URL = "https://your-backend-name.onrender.com"; // Replace with your Render URL
-
-                // Usage:
-                fetch(`${API_URL}/upload`, {
-                    method: "POST",
                     body: formData,
+                    mode: 'cors',
+                    credentials: 'include'
                 });
 
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Server error' }));
+                    throw new Error(errorData.message || 'Server error');
+                }
+
+                const result = await response.json();
+                
                 messageDiv.style.display = 'block';
                 messageDiv.style.backgroundColor = '#4CAF50';
                 messageDiv.style.color = 'white';
