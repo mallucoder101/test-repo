@@ -62,6 +62,14 @@
                     throw new Error('Invalid server response format');
                 }
 
+                const API_URL = "https://your-backend-name.onrender.com"; // Replace with your Render URL
+
+                // Usage:
+                fetch(`${API_URL}/upload`, {
+                    method: "POST",
+                    body: formData,
+                });
+
                 messageDiv.style.display = 'block';
                 messageDiv.style.backgroundColor = '#4CAF50';
                 messageDiv.style.color = 'white';
