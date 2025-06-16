@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <section class="upload-section" id="upload">
+        <h1>Upload Your Work</h1>
+        <form class="upload-form" id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+            <label for="email">Your Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+            <label for="file">Upload File</label>
+            <input type="file" id="file" name="file" accept="image/*,application/pdf" required>
+
+            <button type="submit">Submit Work</button>
+        </form>
+        <div id="message" style="display: none; margin-top: 20px; padding: 10px; border-radius: 5px;"></div>
+    </section>
+    <script src="index.js"></script>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const messageDiv = document.getElementById('message');
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Uploading...';
+                messageDiv.style.display = 'none';
+
+                const formData = new FormData(form);
+
+                const response = await fetch('http://localhost:3000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // First check if response is OK
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Server error');
+                }
+
+                // Then try to parse as JSON
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    throw new Error('Invalid server response format');
+                }
+
+                messageDiv.style.display = 'block';
+                messageDiv.style.backgroundColor = '#4CAF50';
+                messageDiv.style.color = 'white';
+                messageDiv.textContent = result.message || 'File uploaded successfully!';
+                form.reset();
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.style.display = 'block';
+                messageDiv.style.backgroundColor = '#f44336';
+                messageDiv.style.color = 'white';
+                messageDiv.textContent = 'Error: ' + error.message;
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Work';
+            }
+        });
+    </script>
+</body>
+
+</html>
