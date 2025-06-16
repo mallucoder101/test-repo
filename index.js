@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configure CORS
 app.use(cors({
-    origin: true, // Allow all origins
+    origin: ['https://mallucoder101.github.io', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
